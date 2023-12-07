@@ -3,114 +3,38 @@ import {readFileSync} from 'fs';
 let input = readFileSync('../input/day07.txt', 'utf-8');
 let textByLine = input.split("\n");
 
-
-function cardVal(s) {
-    switch (s) {
-        case 'A': return 14;
-        case 'K': return 13;
-        case 'Q': return 12;
-        case 'J': return 11;
-        case 'T': return 10;
-        default: return s;
-    }
-    return 0;
-}
-
-function countMatches(hand) {
-    let matchesInline = new Array(hand.length).fill(0);
-    for (let i = 0; i < hand.length; i++) {
-        for (let j = i + 1; j < hand.length; j++) {
-            if (hand[i] === hand[j]) {
-                matchesInline[i] = matchesInline[i] + 1;
-                matchesInline[j] = matchesInline[j] + 1;
-            }
-        }
-    }
-    return matchesInline;
-}
-
-function getRank(hand) {
-    let matchesInline = countMatches(hand);
-    matchesInline.sort(function (a, b) {
-        return b - a; // Ascending
-    });
-
-    switch (matchesInline[0]) {
-        case 4:
-            return 6; //5 matching
-        case 3:
-            return 5; //4 matching
-        case 2:
-            return parseInt(matchesInline[3]) === 1 ? 4 : 3; //FullHouse or Three Of A kind
-        case 1:
-            return parseInt(matchesInline[2]) === 1 ? 2 : 1; //Two Pair or Single pair;
-        default:
-            return 0; // no matches
-    }
-}
-
-function partOne() {
-    let rankings = [];
-    textByLine.forEach((val, i) => {
-        let lineSplit = val.split(' ');
-        let hand = lineSplit[0];
-        let bet = lineSplit[1];
-        rankings.push({
-            'rank': getRank(hand.split('')),
-            'hand': hand,
-            'bet': parseInt(bet)});
-    });
-
-    rankings.sort((a, b) => {
-        if (a.rank === b.rank) {
-            for (let i = 0; i < a.hand.length; i++) {
-                let a2 = cardVal(a.hand.at(i));
-                let b2 = cardVal(b.hand.at(i));
-                if (a2 === b2) {
-                    continue;
-                }
-
-                return a2 - b2;
-            }
-        } else {
-            return a.rank - b.rank;
-        }
-    })
-
-    let sum = 0;
-    rankings.forEach((val, i) => {
-        sum += val.bet * (i + 1);
-    })
-
-    console.log('part One: ' + sum);
-}
-
 /**
  *
  *  PART TWO -----------------------------------------------------------
  *
  */
 
-function cardValTwo(s) {
+function cardVal(s, jokerMode) {
     switch (s) {
-        case 'A': return 14;
-        case 'K': return 13;
-        case 'Q': return 12;
-        case 'J': return 1;
-        case 'T': return 10;
-        default: return s;
+        case 'A':
+            return 14;
+        case 'K':
+            return 13;
+        case 'Q':
+            return 12;
+        case 'J':
+            return jokerMode ? 1 : 11;
+        case 'T':
+            return 10;
+        default:
+            return s;
     }
     return 0;
 }
 
-function countMatchesTwo(hand) {
+function countMatchesTwo(hand, jokerMode) {
     let matchesInline = new Array(hand.length).fill(0);
     let JCounter = 0;
     for (let i = 0; i < hand.length; i++) {
-        if (hand[i] === 'J') {
+        if (jokerMode && hand[i] === 'J') {
             JCounter++;
         } else {
-            matchesInline[i] = matchesInline[i] + 1; //Not J's always ranked higher than J's
+            matchesInline[i] = matchesInline[i] + 1;
 
             for (let j = i + 1; j < hand.length; j++) {
                 if (hand[i] === hand[j]) {
@@ -123,8 +47,8 @@ function countMatchesTwo(hand) {
     return {'matchesInline': matchesInline, 'JCounter': JCounter};
 }
 
-function getRankTwo(hand) {
-    let data = countMatchesTwo(hand);
+function getRank(hand, jokerMode) {
+    let data = countMatchesTwo(hand, jokerMode);
     data.matchesInline.sort(function (a, b) {
         return b - a; // Descending
     });
@@ -143,23 +67,25 @@ function getRankTwo(hand) {
     }
 }
 
-function partTwo() {
+function poker(jokerMode) {
     let rankings = [];
     textByLine.forEach((val, i) => {
         let lineSplit = val.split(' ');
         let hand = lineSplit[0];
         let bet = lineSplit[1];
         rankings.push({
-            'rank': getRankTwo(hand.split('')),
+            'rank': getRank(hand.split(''), jokerMode),
             'hand': hand,
-            'bet': parseInt(bet)});
+            'bet': parseInt(bet)
+        });
     });
 
     rankings.sort((a, b) => {
         if (a.rank === b.rank) {
             for (let i = 0; i < a.hand.length; i++) {
-                let a2 = cardValTwo(a.hand.at(i));
-                let b2 = cardValTwo(b.hand.at(i));
+                let a2 = cardVal(a.hand.at(i), jokerMode);
+                let b2 = cardVal(b.hand.at(i), jokerMode);
+
                 if (a2 === b2) {
                     continue;
                 }
@@ -173,5 +99,5 @@ function partTwo() {
     console.log(rankings.reduce((sum, c, i) => sum + c.bet * (i + 1), 0));
 }
 
-partOne()
-partTwo()
+poker(false)
+poker(true)
