@@ -31,14 +31,13 @@ function cardVal(s, jokerMode) {
 }
 
 function countMatchesTwo(hand, jokerMode) {
-    let matchesInline = new Array(hand.length).fill(0);
+    let matchesInline = new Array(hand.length).fill(1);
     let JCounter = 0;
     for (let i = 0; i < hand.length; i++) {
         if (jokerMode && hand[i] === 'J') {
+            matchesInline[i] = 0;
             JCounter++;
         } else {
-            matchesInline[i] = matchesInline[i] + 1;
-
             for (let j = i + 1; j < hand.length; j++) {
                 if (hand[i] === hand[j]) {
                     matchesInline[i] = matchesInline[i] + 1;
