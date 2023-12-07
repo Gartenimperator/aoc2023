@@ -99,5 +99,9 @@ function poker(jokerMode) {
     console.log(rankings.reduce((sum, c, i) => sum + c.bet * (i + 1), 0));
 }
 
+let timer = Date.now();
+
 poker(false)
+console.log('time: ' + (Date.now() - timer));
 poker(true)
+console.log('time: ' + (Date.now() - timer));
