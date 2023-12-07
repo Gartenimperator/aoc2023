@@ -21,8 +21,8 @@ function cardVal(s, jokerMode) {
         return s;
     }
 
-    if (s === 'J') {
-        return cardValMap.get(s) * (1 - +jokerMode);
+    if (jokerMode && s === 'J') {
+        return 1;
     } else {
         return cardValMap.get(s);
     }
@@ -102,8 +102,9 @@ function poker(jokerMode) {
 }
 
 let timer = Date.now();
-
 poker(false)
 console.log('time: ' + (Date.now() - timer));
+
+timer = Date.now();
 poker(true)
 console.log('time: ' + (Date.now() - timer));
