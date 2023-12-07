@@ -3,6 +3,13 @@ import {readFileSync} from 'fs';
 let input = readFileSync('../input/day07.txt', 'utf-8');
 let textByLine = input.split("\n");
 
+const cardValMap = new Map();
+
+cardValMap.set('A', 14);
+cardValMap.set('K', 13);
+cardValMap.set('Q', 12);
+cardValMap.set('J', 11);
+cardValMap.set('T', 10);
 /**
  *
  *  PART TWO -----------------------------------------------------------
@@ -10,20 +17,16 @@ let textByLine = input.split("\n");
  */
 
 function cardVal(s, jokerMode) {
-    switch (s) {
-        case 'A':
-            return 14;
-        case 'K':
-            return 13;
-        case 'Q':
-            return 12;
-        case 'J':
-            return jokerMode ? 1 : 11;
-        case 'T':
-            return 10;
-        default:
-            return s;
+    if (parseInt(s)) {
+        return s;
     }
+
+    if (s === 'J') {
+        return cardValMap.get(s) * (1 - +jokerMode);
+    } else {
+        return cardValMap.get(s);
+    }
+
     return 0;
 }
 
