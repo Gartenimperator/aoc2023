@@ -15,136 +15,103 @@ let input = readFileSync('../input/day10.txt', 'utf-8').split("\n").map((val, in
     return val.split('');
 });
 
-function replaceStartTile(pos) { // pos = (x,y)
-    const toFindDuplicates = (arry) => arry.filter((item, index) => arry.indexOf(item) !== index);
+function replaceStartAndGetNextTile(pos) { // pos = (x,y)
+    const toFindDuplicates = (arr) => arr.filter((item, index) => arr.indexOf(item) !== index);
     let map = new Map();
     map.set('L', '7');
     map.set('7', 'L');
     map.set('J', 'F');
     map.set('F', 'J');
+    let next;
 
     let neighbours = [];
     if (pos.y - 1 >= 0 && ['|', '7', 'F'].includes(input[pos.y - 1][pos.x])) {
         neighbours.push(...['|', '7', 'F']);
+        next = {
+            'x': pos.x,
+            'y': pos.y - 1
+        };
     }
 
     if (pos.y + 1 < input.length && ['|', 'J', 'L'].includes(input[pos.y + 1][pos.x])) {
         neighbours.push(...['|', 'J', 'L']);
+        next = {
+            'x': pos.x,
+            'y': pos.y + 1
+        };
     }
 
     if (pos.x + 1 < input[pos.y].length && ['7', 'J', '-'].includes(input[pos.y][pos.x + 1])) {
         console.log(2);
         neighbours.push(...['7', 'J', '-']);
-    }
-
-    if (pos.x - 1 >= 0 && ['L', 'F', '-'].includes(input[pos.y][pos.x - 1])) {
-        neighbours.push(...['L', 'F', '-']);
-    }
-
-    input[pos.y][pos.x] = map.get(toFindDuplicates(neighbours)[0]);
-}
-
-function findFirstN(pos) {
-    if (pos.y - 1 >= 0 && ['|', '7', 'F'].includes(input[pos.y - 1][pos.x])) {
-        return {
-            'x': pos.x,
-            'y': pos.y - 1
-        };
-    }
-    if (pos.y + 1 < input.length && ['|', 'J', 'L'].includes(input[pos.y + 1][pos.x])) {
-        return {
-            'x': pos.x,
-            'y': pos.y + 1
-        };
-    }
-    if (pos.x + 1 < input[pos.y].length && ['7', 'J', '-'].includes(input[pos.y][pos.x + 1])) {
-        return {
+        next = {
             'x': pos.x + 1,
             'y': pos.y
         };
     }
+
     if (pos.x - 1 >= 0 && ['L', 'F', '-'].includes(input[pos.y][pos.x - 1])) {
-        return {
-            'x': pos.x - 1,
+        neighbours.push(...['L', 'F', '-']);
+        next = {
+            'x': pos.x -1,
             'y': pos.y
         };
     }
 
-    console.log('Error. No adjacent tile found');
+    input[pos.y][pos.x] = map.get(toFindDuplicates(neighbours)[0]);
+    return next;
 }
 
 function partOne() {
-    let curr = findFirstN(startingPos);
+    let curr = replaceStartAndGetNextTile(startingPos);
     let lastPos = startingPos;
     let counter = 0;
     let next = [];
     let looped = false;
+    let illegalFastMap = new Map();
     visited[startingPos.y][startingPos.x] = 1;
+
+    illegalFastMap.set('| -1', { 'x': 0, 'y': 1});
+    illegalFastMap.set('| 1', { 'x': 0, 'y': -1});
+    illegalFastMap.set('- -1', { 'x': 1, 'y': 0});
+    illegalFastMap.set('- 1', { 'x': -1, 'y': 0});
+    illegalFastMap.set('J -1', { 'x': -1, 'y': 0});
+    illegalFastMap.set('J 0', { 'x': 0, 'y': -1});
+    illegalFastMap.set('L -1', { 'x': 1, 'y': 0});
+    illegalFastMap.set('L 0', { 'x': 0, 'y': -1});
+    illegalFastMap.set('F 1', { 'x': 1, 'y': 0});
+    illegalFastMap.set('F 0', { 'x': 0, 'y': 1});
+    illegalFastMap.set('7 1', { 'x': -1, 'y': 0});
+    illegalFastMap.set('7 0', { 'x': 0, 'y': 1});
+
     while (!looped) {
 
         if (visited[curr.y][curr.x] !== 0) {
-            console.log("Already visited this node: " + input[curr.y][curr.x]);
+            console.log("Mapped Path.");
             looped = true;
         } else {
             visited[curr.y][curr.x] = visited[lastPos.y][lastPos.x] + 1;
         }
 
-        switch (input[curr.y][curr.x]) {
-            case '|':
-                if (lastPos.y < curr.y) {
-                    next = [curr.x, curr.y + 1];
-                } else {
-                    next = [curr.x, curr.y - 1];
-                }
-                break;
-            case '-':
-                if (lastPos.x < curr.x) {
-                    next = [curr.x + 1, curr.y];
-                } else {
-                    next = [curr.x - 1, curr.y];
-                }
-                break;
-            case 'J':
-                if (lastPos.y < curr.y) {
-                    next = [curr.x - 1, curr.y];
-                } else {
-                    next = [curr.x, curr.y - 1];
-                }
-                break;
-            case 'L':
-                if (lastPos.y < curr.y) {
-                    next = [curr.x + 1, curr.y];
-                } else {
-                    next = [curr.x, curr.y - 1];
-                }
-                break;
-            case 'F':
-                if (lastPos.y > curr.y) {
-                    next = [curr.x + 1, curr.y];
-                } else {
-                    next = [curr.x, curr.y + 1];
-                }
-                break;
-            case '7':
-                if (lastPos.y > curr.y) {
-                    next = [curr.x - 1, curr.y];
-                } else {
-                    next = [curr.x, curr.y + 1];
-                }
-                break;
-            case 'S':
-                looped = true;
+        let next;
+
+        if (input[curr.y][curr.x] === '-') {
+            next = illegalFastMap.get(input[curr.y][curr.x] + ' ' + (lastPos.x - curr.x));
+        } else {
+            next = illegalFastMap.get(input[curr.y][curr.x] + ' ' + (lastPos.y - curr.y));
         }
 
         lastPos = curr;
-        curr = {'x': next[0], 'y': next[1]};
+        curr = {
+            'x': next.x + lastPos.x,
+            'y': next.y + lastPos.y
+        }
         counter++;
     }
     console.log('Part One: ' + (counter / 2));
 }
 
 function partTwo() {
-    replaceStartTile(startingPos);
     let tilesInsideLoop = 0;
     visited.forEach((row, y) => {
         let insideLoop = false;
@@ -184,5 +151,10 @@ function partTwo() {
     console.log('PartTwo: ' + tilesInsideLoop);
 }
 
+let timer = Date.now();
 partOne();
+console.log('time: ' + (Date.now() - timer));
+
+timer = Date.now();
 partTwo();
+console.log('time: ' + (Date.now() - timer));
