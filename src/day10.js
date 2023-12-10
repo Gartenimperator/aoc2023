@@ -66,11 +66,10 @@ function partOne() {
     let curr = replaceStartAndGetNextTile(startingPos);
     let lastPos = startingPos;
     let counter = 0;
-    let next = [];
     let looped = false;
-    let illegalFastMap = new Map();
     visited[startingPos.y][startingPos.x] = 1;
 
+    let illegalFastMap = new Map();
     illegalFastMap.set('| -1', { 'x': 0, 'y': 1});
     illegalFastMap.set('| 1', { 'x': 0, 'y': -1});
     illegalFastMap.set('- -1', { 'x': 1, 'y': 0});
