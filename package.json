@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "js-graph-algorithms": "^1.0.18",
     "typescript": "^5.3.2"
   },
   "type": "module"
